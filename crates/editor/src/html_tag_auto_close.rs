@@ -10,7 +10,6 @@ pub(super) fn closing_tag_for_input(buffer: &BufferSnapshot, point: Point) -> Op
     let offset = point.to_offset(&buffer.text);
     let less_than_offset = offset.checked_sub(1)?;
     if !buffer
-        .text
         .text_for_range(less_than_offset..offset)
         .equals_str("<")
     {
@@ -44,7 +43,7 @@ pub(super) fn closing_tag_for_input(buffer: &BufferSnapshot, point: Point) -> Op
             nodes.extend(node.children(&mut cursor));
         }
     }
-    tags.sort_by_key(Node::start_byte);
+    tags.sort_by_key(|node| node.start_byte());
 
     let mut open_tags = Vec::new();
     for tag in tags {
@@ -83,7 +82,7 @@ fn is_void_element(tag_name: &str) -> bool {
 mod tests {
     use crate::{
         editor_tests::init_test,
-        test::{editor_test_context::EditorTestContext, TestAppContext},
+        test::{TestAppContext, editor_test_context::EditorTestContext},
     };
 
     use gpui::AppContext as _;
@@ -137,6 +136,11 @@ mod tests {
     check!(
         does_not_insert_a_closing_tag_for_void_elements,
         "<img src=\"image.png\"><ˇ" + "/" => "<img src=\"image.png\"></ˇ"
+    );
+
+    check!(
+        skips_void_elements_when_closing_their_parent,
+        "<main><img src=\"image.png\"><ˇ" + "/" => "<main><img src=\"image.png\"></main>ˇ"
     );
 
     check!(

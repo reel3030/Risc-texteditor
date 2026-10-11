@@ -118,8 +118,7 @@ impl Editor {
                 && buffer
                     .language_at(point)
                     .is_some_and(|language| language.name() == "HTML")
-                && let Some(tag_name) =
-                    html_tag_auto_close::closing_tag_for_input(buffer, point)
+                && let Some(tag_name) = html_tag_auto_close::closing_tag_for_input(buffer, point)
             {
                 let insertion = format!("/{tag_name}>");
                 let anchor = snapshot.anchor_before(selection.end);
