@@ -1,6 +1,16 @@
 name: HTML tag auto-close
 
 on:
+  push:
+    paths:
+      - ".github/workflows/build.yaml"
+      - "crates/editor/src/editor.rs"
+      - "crates/editor/src/input.rs"
+      - "crates/editor/src/html_tag_auto_close.rs"
+      - "extantions-dev/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
   pull_request:
     paths:
       - ".github/workflows/build.yaml"
