@@ -31,6 +31,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  linux:
+    name: Build Linux package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      CARGO_INCREMENTAL: "0"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+      - name: Install Linux dependencies
+        run: ./script/linux
+      - name: Install WASI SDK
+        run: ./script/download-wasi-sdk
+      - name: Build Linux package
+        run: ./script/bundle-linux --skip-sentry
+      - name: Upload Linux package
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: zed-linux-x86_64
+          path: target/release/zed-linux-x86_64.tar.gz
+          if-no-files-found: error
+
   editor:
     name: Build and test editor changes
     runs-on: ubuntu-24.04
@@ -60,3 +82,9 @@ jobs:
         run: rustup target add wasm32-wasip2
       - name: Build HTML extension
         run: cargo build --manifest-path extantions-dev/Cargo.toml --target wasm32-wasip2
+      - name: Upload HTML extension
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: zed-html-tag-completion-wasm
+          path: extantions-dev/target/wasm32-wasip2/debug/zed_html_tag_completion.wasm
+          if-no-files-found: error
