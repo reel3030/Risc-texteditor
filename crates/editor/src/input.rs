@@ -111,6 +111,23 @@ impl Editor {
             }
             all_selections_read_only = false;
 
+            if text.as_ref() == "/"
+                && selection.is_empty()
+                && snapshot.reversed_chars_at(selection.start).next() == Some('<')
+                && let Some((buffer, point)) = snapshot.point_to_buffer_point(selection.start)
+                && buffer
+                    .language_at(point)
+                    .is_some_and(|language| language.name() == "HTML")
+                && let Some(tag_name) =
+                    html_tag_auto_close::closing_tag_for_input(buffer, point)
+            {
+                let insertion = format!("/{tag_name}>");
+                let anchor = snapshot.anchor_before(selection.end);
+                new_selections.push((selection.map(|_| anchor), insertion.len()));
+                edits.push((selection.range(), insertion.into()));
+                continue;
+            }
+
             if let Some(scope) = snapshot.language_scope_at(selection.head()) {
                 // Determine if the inserted text matches the opening or closing
                 // bracket of any of this language's bracket pairs.

@@ -27,6 +27,7 @@ mod emmet_ext;
 mod fold;
 mod folding_ranges;
 mod git;
+mod html_tag_auto_close;
 mod highlight_matching_bracket;
 pub mod hover_links;
 pub mod hover_popover;
